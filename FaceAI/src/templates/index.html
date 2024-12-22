@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceAI - Facial Expression Recognition</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1A1A2E, #16213E);
+            color: #FFFFFF;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            color: #FFD700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #F0E68C;
+        }
+
+        .card {
+            background: #222831;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: #F5F5F5;
+        }
+
+        .upload-area {
+            border: 2px dashed #FFD700;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #393E46;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #464A56;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-area label {
+            font-size: 1.2rem;
+            color: #FFD700;
+            cursor: pointer;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .result p {
+            font-size: 1.4rem;
+            color: #FFD700;
+        }
+
+        .preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            background: #FFD700;
+            color: #222831;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: #FFC107;
+            transform: scale(1.05);
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #F5F5F5;
+        }
+
+        footer a {
+            color: #FFD700;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FaceAI</h1>
+        <p>Advanced Facial Expression Recognition Technology</p>
+    </header>
+
+    <div class="card">
+        <div class="intro">
+            <p>FaceAI uses cutting-edge AI technology to detect and analyze facial expressions. As your trusted AI agent, FaceAI bridges the gap between humans and machines, enabling seamless emotional intelligence integration for healthcare, customer service, education, and more.</p>
+        </div>
+        <h2>Upload an Image</h2>
+        <div class="upload-area">
+            <label for="image-upload">Drag & Drop Your Image Here or <span style="color: #FFD700; text-decoration: underline;">Browse</span></label>
+            <input type="file" id="image-upload" accept="image/*">
+        </div>
+        <div class="preview" id="image-preview">
+            <!-- Preview will be displayed here -->
+        </div>
+        <div class="result">
+            <p><strong>Detected Emotion:</strong> <span id="emotion-result">None</span></p>
+        </div>
+        <!-- <button id="analyze-btn">Analyze Expression</button> -->
+    </div>
+
+    <footer>
+        <p>Powered by <a href="#">FaceAI Technology</a>. All rights reserved.</p>
+    </footer>
+
+    <script>
+
+
+const uploadInput = document.getElementById('image-upload');
+const emotionResult = document.getElementById('emotion-result');
+const imagePreview = document.getElementById('image-preview');
+
+// 监听图片上传事件
+uploadInput.addEventListener('change', async () => {
+    const file = uploadInput.files[0];
+    if (!file) {
+        alert("Please upload an image.");
+        return;
+    }
+
+    // 显示上传图片的预览
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        imagePreview.innerHTML = `<img src="${event.target.result}" alt="Uploaded Image">`;
+    };
+    reader.readAsDataURL(file);
+
+    // 上传图片到后端并获取结果
+    emotionResult.textContent = "Processing...";
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch('/analyze', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to analyze image.");
+        }
+
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        emotionResult.textContent = data.emotion;
+    } catch (error) {
+        console.error(error);
+        emotionResult.textContent = "Error analyzing image.";
+    }
+});
+
+
+    </script>
+    
+</body>
+</html>
